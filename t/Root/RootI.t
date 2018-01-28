@@ -93,15 +93,27 @@ is shift @vals, 'stairs';
 # class method
 {
     local $Bio::Root::Root::VERSION = 8.9;
-    warning_like{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
-    warning_like{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/;
+
+    # This should die (no version, so delegates to throw())
+    throws_ok{ Bio::Root::Root->deprecated('Test1') } qr/Test1/, 'simple';
+
+    # This should die (no version, so delegates to throw())
+    throws_ok{ Bio::Root::Root->deprecated(-message => 'Test2') } qr/Test2/;
+
+    # this should warn
     warning_like{ Bio::Root::Root->deprecated('Test3', 999.999) } qr/Test3/,
         'warns for versions below current version';
+
+    # this should warn
     warning_like{ Bio::Root::Root->deprecated(-message => 'Test4',
                                               -version => 999.999) } qr/Test4/,
         'warns for versions below current version';
+
+    # This should die (current class version is > passed version)
     throws_ok{ Bio::Root::Root->deprecated('Test5', 0.001) } qr/Test5/,
         'throws for versions above current version';
+
+    # This should die (current class version is > passed version)
     throws_ok{ Bio::Root::Root->deprecated(-message => 'Test6',
                                        -version => 0.001) } qr/Test6/,
         'throws for versions above current version';
@@ -112,8 +124,8 @@ is shift @vals, 'stairs';
 
     # object method
     my $root = Bio::Root::Root->new();
-    warning_like{ $root->deprecated('Test1') } qr/Test1/, 'simple';
-    warning_like{ $root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
+    throws_ok{ $root->deprecated('Test1') } qr/Test1/, 'simple';
+    throws_ok{ $root->deprecated(-message => 'Test2') } qr/Test2/, 'simple';
     warning_like{ $root->deprecated('Test3', 999.999) } qr/Test3/,
         'warns for versions below current version';
     warning_like{ $root->deprecated(-message => 'Test4',
@@ -306,5 +318,3 @@ throws_ok { $foo->really_not_good } qr/This is really not good/,
 throws_ok { $foo->still_very_bad } qr/This is still very bad/,
     'throws for versions >= current version';
 lives_ok { $foo->okay_for_now } 'No warnings/exceptions below current version';
-
-

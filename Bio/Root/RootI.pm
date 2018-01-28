@@ -227,12 +227,16 @@ sub deprecated{
     my ($msg, $version, $warn_version, $throw_version) =
         $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);
 
+    # GH #263 - refine how deprecated() works
+    if (!defined($version) && (!defined $warn_version && !defined $throw_version)) {
+        $self->throw($msg)
+    }
     $throw_version ||= $version;
     $warn_version  ||= $class_version;
-    
+
     $throw_version =~ s/_//g;
     $warn_version =~ s/_//g;
-    
+
     for my $v ( $warn_version, $throw_version) {
         no warnings 'numeric';
         $self->throw("Version must be numerical, such as 1.006000 for v1.6.0, not $v")
